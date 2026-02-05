@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>App Combinada: JDE, Web y Madera</title>
+    <style>
+        /* ============================= ESTILOS GLOBALES - MODERN UI ============================= */
+        :root {
+            --primary-color: #000;
+            --bg-color: #f4f6f8;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-radius: 6px;
+            /* Variable para el tamaño de fuente dinámico en JDE (Pantalla) */
+            --jde-font-size: 0.8rem;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: 2rem;
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .wrapper {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* ============================= HEADER VISUAL (ESTILO IMAGEN) ============================= */
+        .visual-header {
+            background: #fff;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee; 
+            display: block; 
+        }
+
+        .vh-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+
+        .vh-logo {
+            background: #000;
+            color: #fff;
+            padding: 0.75rem 2rem;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            display: inline-block;
+        }
+
+        .vh-contact {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .vh-contact strong {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #000;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .vh-legal {
+            border-left: 4px solid #000; 
+            padding-left: 1rem;
+            margin-top: 1rem;
+        }
+
+        .vh-legal p {
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+            color: #444;
+        }
+
+        .vh-legal strong {
+            color: #000;
+            font-weight: 700;
+        }
+
+        /* ============================= CONTROLES Y TARJETAS ============================= */
+        .config-panel {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        h2 { font-size: 1.5rem; margin-bottom: 1rem; border-bottom: 2px solid #000; padding-bottom: 0.5rem; display: inline-block; }
+        h3 { font-size: 1.1rem; margin-bottom: 0.5rem; margin-top: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;}
+
+        /* Agrupación de Checkboxes para JDE */
+        .column-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+            margin-top: 5px;
+        }
+        .column-group-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            width: 100%;
+        }
+
+        /* ============================= TABLAS (ESTILO ELEGANTE OSCURO) ============================= */
+        .document-canvas {
+            background: white;
+            padding: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 3rem;
+        }
+        
+        .tables-wrapper {
+            padding: 0 2rem 2rem 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            page-break-inside: auto; /* Permitir romper tablas largas en impresión */
+        }
+
+        /* Estilos específicos para tabla JDE controlados por variable CSS */
+        #jdeTablesContainer table {
+            font-size: var(--jde-font-size);
+        }
+
+        /* Estilo para fila arrastrada */
+        .dragging {
+            opacity: 0.5;
+            background-color: #e0e0e0 !important;
+        }
+        
+        /* Cursor de arrastre en filas */
+        tbody tr {
+            cursor: move;
+            user-select: none;
+        }
+        
+        tbody tr:hover {
+            background-color: #f0f0f0 !important;
+        }
+
+        thead {
+            background-color: #111;
+            color: white;
+        }
+
+        th {
+            background-color: #111;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.6rem 0.5rem;
+            text-align: center;
+            border: none;
+            white-space: nowrap; 
+        }
+        
+        th:first-child {
+            text-align: left;
+            padding-left: 0.75rem;
+            width: auto; 
+        }
+
+        /* Alineación izquierda para Medidas en JDE */
+        #jdeTablesContainer th:nth-child(2),
+        #jdeTablesContainer td:nth-child(2) {
+            text-align: left;
+            padding-left: 0;
+            white-space: nowrap;
+            color: #555;
+        }
+        
+        td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            color: #333;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        td:first-child {
+            text-align: left;
+            font-weight: 500;
+            padding-left: 0.75rem;
+            padding-right: 0.5rem;
+        }
+
+        tbody tr:nth-child(even) { background-color: #fff; } 
+
+        .result-table-wrapper { margin-bottom: 1.5rem; position: relative; }
+
+        /* ============================= INPUTS ============================= */
+        .controls-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: monospace;
+            background: #f9fafb;
+        }
+
+        button {
+            background: #000; color: #fff; border: none; padding: 0.6rem 1.2rem;
+            border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.9rem;
+        }
+        button:hover { background: #333; }
+        button.btn-secondary { background: #fff; color: #333; border: 1px solid #d1d5db; }
+        button.btn-danger { background: #fff; color: #dc2626; border: 1px solid #dc2626; }
+
+        .close-btn {
+            background: transparent; color: #999; font-size: 1.5rem;
+            line-height: 1; padding: 0 0.5rem; border: none; cursor: pointer;
+        }
+        .close-btn:hover { color: red; }
+
+        /* Selector de Modo */
+        .mode-selector {
+            display: flex; justify-content: center; gap: 1px;
+            background: #e5e7eb; padding: 4px; border-radius: 6px;
+            margin-bottom: 2rem; width: fit-content; margin-left: auto; margin-right: auto;
+        }
+        .mode-selector label {
+            padding: 0.5rem 2rem; cursor: pointer; font-weight: 600; color: #666;
+            background: #f4f6f8; transition: all 0.2s;
+        }
+        .mode-selector label:first-child { border-radius: 4px 0 0 4px; }
+        .mode-selector label:last-child { border-radius: 0 4px 4px 0; }
+        .mode-selector input[type="radio"]:checked + label {
+            background: #fff; color: #000; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        /* Madera específica */
+        .wood-entry {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px dashed #ccc;
+            position: relative;
+        }
+        .wood-entry:last-child { border-bottom: none; }
+
+        /* ============================= IMPRESIÓN (PDF MÁS ELEGANTE Y PEQUEÑO) ============================= */
+        @media print {
+            @page { 
+                margin: 0.8cm 0.8cm; 
+                size: A4 portrait; 
+            }
+            
+            body { 
+                background: white; 
+                padding: 0; 
+                color: #000; 
+                font-size: 9pt; /* Texto base más pequeño */
+            }
+
+            .no-print, .config-panel, .mode-selector { display: none !important; }
+            .wrapper, .container { width: 100% !important; max-width: 100% !important; margin: 0; gap: 0; }
+            .document-canvas { box-shadow: none; margin: 0; }
+            
+            /* Header más compacto */
+            .visual-header { 
+                padding: 0 0 1rem 0; 
+                margin-bottom: 1rem; 
+                border-bottom: 2px solid #000;
+            }
+            .vh-top-row { margin-bottom: 1rem; }
+            .vh-logo { 
+                padding: 0.5rem 1.5rem; 
+                font-size: 1.8rem; /* Logo un poco más pequeño */
+                -webkit-print-color-adjust: exact; print-color-adjust: exact; 
+            }
+            .vh-contact { font-size: 8pt; }
+            .vh-contact strong { font-size: 9pt; }
+            .vh-legal { 
+                border-left: 3px solid #000 !important; 
+                padding-left: 0.8rem; 
+                margin-top: 0.5rem;
+                -webkit-print-color-adjust: exact; 
+            }
+            .vh-legal p { font-size: 7.5pt; margin-bottom: 2px; }
+
+            /* Tablas más compactas */
+            .tables-wrapper { padding: 0; }
+            /* Forzar tamaño pequeño en impresión ignorando el zoom visual */
+            #jdeTablesContainer table, table { 
+                font-size: 8pt !important; 
+                width: 100%; 
+                margin-top: 0.5rem; 
+            }
+            
+            thead, th { 
+                background-color: #000 !important; 
+                color: #fff !important; 
+                -webkit-print-color-adjust: exact; 
+                padding: 4px 6px;
+                font-size: 7.5pt;
+            }
+            
+            th:first-child, td:first-child { text-align: left !important; }
+            #jdeTablesContainer th:nth-child(2), #jdeTablesContainer td:nth-child(2) { text-align: left !important; padding-left: 0 !important; }
+
+            td { padding: 4px 6px; }
+            
+            .wood-entry { 
+                /* CORRECCIÓN: Permitir salto de página para que no deje huecos */
+                page-break-inside: auto; 
+                border-bottom: 1px solid #000; 
+                margin-bottom: 1rem; padding-bottom: 1rem;
+            }
+            
+            /* Evitar que una fila se corte por la mitad */
+            tr { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ==================== SELECCION DE MODO ==================== -->
+    <div class="mode-selector no-print">
+        <input type="radio" name="modeSelector" id="modeJDE" value="JDE" checked hidden>
+        <label for="modeJDE">JDE</label>
+        
+        <input type="radio" name="modeSelector" id="modeWEB" value="WEB" hidden>
+        <label for="modeWEB">Web</label>
+        
+        <input type="radio" name="modeSelector" id="modeMADERA" value="MADERA" hidden>
+        <label for="modeMADERA">Madera Paquetes</label>
+    </div>
+
+    <div class="wrapper">
+
+        <!-- Plantilla del Header Visual -->
+        <template id="headerTemplate">
+            <div class="visual-header">
+                <div class="vh-top-row">
+                    <div class="vh-logo">Gabarró</div>
+                    <div class="vh-contact">
+                        <strong>José Sánchez <span class="minimize-btn no-print">-</span></strong>
+                        <div>Tel. 686 97 57 20</div>
+                        <div>Email Consultas: jose.sanchez@gabarró.com</div>
+                        <div>Email Pedidos: ventas.galicia@gabarro.com</div>
+                    </div>
+                </div>
+                <div class="vh-legal">
+                    <p><strong>Precio picking:</strong> se aplica para pedidos superiores a 180 € netos.</p>
+                    <p><strong>Portes:</strong> 30 € para pedidos con un importe inferior a 400 € netos.</p>
+                    <p><strong>Aviso:</strong> Esta tarifa puede estar sujeta a variaciones; verifiquen el precio antes de realizar el pedido.</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- ============================================================ APP JDE ============================================================ -->
+        <div id="jdeApp" class="container">
+            
+            <div class="config-panel no-print">
+                <div class="controls-row" style="justify-content: space-between;">
+                    <h2>Configuración JDE</h2>
+                    <!-- Botones de Zoom y Print -->
+                    <div style="display:flex; gap:0.5rem; align-items:center;">
+                        <button id="btnZoomOut" class="btn-secondary" title="Reducir tamaño de texto">🔍-</button>
+                        <button id="btnZoomIn" class="btn-secondary" title="Aumentar tamaño de texto">🔍+</button>
+                        <button onclick="window.print()">🖨️ Imprimir</button>
+                    </div>
+                </div>
+                
+                <!-- Descuentos base -->
+                <div class="controls-row">
+                    <label><input type="radio" name="discountConfig" value="B0"> B0</label>
+                    <label><input type="radio" name="discountConfig" value="A3" checked> A3</label>
+                    <label><input type="radio" name="discountConfig" value="M3"> M3</label>
+                    <label style="margin-left: 1rem;"><input type="checkbox" id="jdeChkUnidad" checked> Unidad (m²)</label>
+                </div>
+
+                <textarea id="jdeInputData" rows="5" placeholder="Pega aquí los datos de Excel/JDE..."></textarea>
+                
+                <div class="controls-row" style="margin-top: 1rem; justify-content: center;">
+                    <button id="jdeBtnAddTable">Añadir Tabla</button>
+                    <button id="jdeBtnClearText" class="btn-secondary">Limpiar</button>
+                </div>
+                
+                <!-- CONTROLES DE COLUMNAS AGRUPADOS -->
+                <div style="margin-top:1rem;">
+                    <div class="column-group-label">Información</div>
+                    <div class="column-group" id="jdeColsInfo"></div>
+                    
+                    <div class="column-group-label" style="margin-top:10px;">Precios</div>
+                    <div class="column-group" id="jdeColsPrecios"></div>
+                    
+                    <div class="column-group-label" style="margin-top:10px;">Logística</div>
+                    <div class="column-group" id="jdeColsStock"></div>
+                </div>
+
+                <p style="text-align:center; font-size:0.8rem; color:#999; margin-top:1rem;">💡 Tip: Haz doble clic en una fila para borrarla. Arrastra las filas para reordenar.</p>
+            </div>
+
+            <!-- LIENZO DOCUMENTO JDE -->
+            <div class="document-canvas">
+                <div id="jdeHeaderContainer"></div> 
+                <div id="jdeTablesContainer" class="tables-wrapper"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ APP WEB ============================================================ -->
+        <div id="webApp" class="container" style="display:none;">
+            
+            <div class="config-panel no-print">
+                <div class="controls-row" style="justify-content: space-between;">
+                    <h2>Configuración Web</h2>
+                    <button onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+                <div class="controls-row">
+                    <label><input type="radio" name="discountConfigWeb" value="A" checked> Cliente A</label>
+                    <label><input type="radio" name="discountConfigWeb" value="B"> Cliente B</label>
+                    <label><input type="radio" name="discountConfigWeb" value="M"> Cliente M</label>
+                    <label style="margin-left: 1rem;"><input type="checkbox" id="webChkPaquete38"> Paquete 38%</label>
+                    <label><input type="checkbox" id="webChkUnidad" checked> Unidad (m²)</label>
+                </div>
+                <textarea id="webInputData" rows="5" placeholder="Pega aquí los datos Web..."></textarea>
+                <div class="controls-row" style="margin-top: 1rem; justify-content: center;">
+                    <button id="webBtnAddTable">Añadir Tabla</button>
+                    <button id="webBtnClearText" class="btn-secondary">Limpiar</button>
+                </div>
+                <div id="webColumnsContainer" class="controls-row" style="margin-top:1rem; font-size: 0.8rem; color: #666;"></div>
+            </div>
+
+            <!-- LIENZO DOCUMENTO WEB -->
+            <div class="document-canvas">
+                <div id="webHeaderContainer"></div>
+                <div id="webTablesContainer" class="tables-wrapper"></div>
+            </div>
+        </div>
+
+        <!-- ============================================================ APP MADERA PAQUETES ============================================================ -->
+        <div id="maderaApp" class="container" style="display:none;">
+            
+            <div class="config-panel no-print">
+                <div class="controls-row" style="justify-content: space-between;">
+                    <h2>Madera - Entrada de Datos</h2>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button class="btn-danger" id="clearAllBtn">Borrar Todo</button>
+                        <button onclick="window.print()">🖨️ Imprimir</button>
+                    </div>
+                </div>
+                <div class="controls-row" style="background: #f9fafb; padding: 1rem; border-radius: 4px; border: 1px solid #eee;">
+                    <label><input type="checkbox" id="onlyPackageChk" /> Sólo Paquete</label>
+                    <label><input type="checkbox" id="onlyPickingChk" /> Sólo Picking</label>
+                    <label><input type="checkbox" id="use36PackageChk" /> Dto. Paquete 38%</label>
+                    <label><input type="checkbox" id="useMLChk" /> Usar m.l.</label>
+                </div>
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <input type="text" placeholder="Descripción (Ej: ROBLE AMERICANO 52mm)" id="descriptionInput" style="font-weight: bold;" />
+                    <input type="text" placeholder="Precio Base (€)" id="priceInput" />
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                    <textarea placeholder="Datos Picking (Copiar columnas Excel)" id="pickingDimensionsTextarea" rows="4"></textarea>
+                    <textarea placeholder="Datos Paquetes (Copiar columnas Excel)" id="packageDimensionsTextarea" rows="4"></textarea>
+                </div>
+                <div class="controls-row" style="justify-content: center;">
+                    <button id="addBtn" style="width: 100%;">+ Añadir al Documento</button>
+                </div>
+                <p style="text-align:center; font-size:0.8rem; color:#999; margin-top:1rem;">💡 Tip: Haz doble clic en una fila para borrarla. Arrastra las filas para reordenar.</p>
+            </div>
+
+            <!-- LIENZO DOCUMENTO MADERA -->
+            <div class="document-canvas">
+                <div id="maderaPrintCanvas"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LÓGICA JAVASCRIPT -->
+    <script>
+        // ==================== LÓGICA ZOOM Y DRAG & DROP GENERAL ====================
+        let currentJdeFontSize = 0.8;
+        
+        document.getElementById('btnZoomIn').addEventListener('click', () => {
+            currentJdeFontSize += 0.05;
+            document.documentElement.style.setProperty('--jde-font-size', currentJdeFontSize + 'rem');
+        });
+
+        document.getElementById('btnZoomOut').addEventListener('click', () => {
+            if (currentJdeFontSize > 0.4) {
+                currentJdeFontSize -= 0.05;
+                document.documentElement.style.setProperty('--jde-font-size', currentJdeFontSize + 'rem');
+            }
+        });
+
+        // --- SISTEMA DRAG & DROP UNIFICADO (JDE y Madera) ---
+        let dragSrcEl = null;
+        let dragSrcData = null; // { type: 'jde'|'madera', tableIdx: ..., rowIdx: ..., woodIdx: ..., dataType: 'pack'|'pick' }
+
+        // MANEJADOR JDE
+        const containerJDE = document.getElementById('jdeTablesContainer');
+        setupDragDrop(containerJDE, handleDropJDE);
+
+        // MANEJADOR MADERA
+        const containerMadera = document.getElementById('maderaPrintCanvas');
+        setupDragDrop(containerMadera, handleDropMadera);
+
+        function setupDragDrop(container, dropCallback) {
+            container.addEventListener('dragstart', function(e) {
+                const tr = e.target.closest('tr');
+                if (!tr) return;
+                
+                dragSrcEl = tr;
+                tr.classList.add('dragging');
+                
+                // Recopilar datos según el tipo de fila
+                if (tr.dataset.tableIndex !== undefined) {
+                    // Es JDE
+                    dragSrcData = {
+                        type: 'jde',
+                        tableIdx: parseInt(tr.dataset.tableIndex),
+                        rowIdx: parseInt(tr.dataset.rowIndex)
+                    };
+                } else if (tr.dataset.woodIndex !== undefined) {
+                    // Es Madera
+                    dragSrcData = {
+                        type: 'madera',
+                        woodIdx: parseInt(tr.dataset.woodIndex),
+                        dataType: tr.dataset.dataType, // 'pick' o 'pack'
+                        rowIdx: parseInt(tr.dataset.rowIndex)
+                    };
+                }
+
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            container.addEventListener('dragend', function(e) {
+                const tr = e.target.closest('tr');
+                if (tr) tr.classList.remove('dragging');
+                dragSrcEl = null;
+                dragSrcData = null;
+            });
+
+            container.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                return false;
+            });
+
+            container.addEventListener('drop', function(e) {
+                e.stopPropagation();
+                const targetTr = e.target.closest('tr');
+                if (dragSrcEl && targetTr && dragSrcEl !== targetTr) {
+                    dropCallback(targetTr);
+                }
+                return false;
+            });
+        }
+
+        function handleDropJDE(targetTr) {
+            if (dragSrcData.type !== 'jde') return;
+            
+            const targetTableIdx = parseInt(targetTr.dataset.tableIndex);
+            const targetRowIdx = parseInt(targetTr.dataset.rowIndex);
+
+            // Solo reordenar dentro de la misma tabla
+            if (dragSrcData.tableIdx === targetTableIdx) {
+                const tableData = jdeData[dragSrcData.tableIdx];
+                const item = tableData.splice(dragSrcData.rowIdx, 1)[0];
+                tableData.splice(targetRowIdx, 0, item);
+                renderJDE();
+            }
+        }
+
+        function handleDropMadera(targetTr) {
+            if (dragSrcData.type !== 'madera') return;
+
+            const targetWoodIdx = parseInt(targetTr.dataset.woodIndex);
+            const targetDataType = targetTr.dataset.dataType;
+            const targetRowIdx = parseInt(targetTr.dataset.rowIndex);
+
+            // Solo reordenar dentro del mismo bloque de madera y mismo tipo de tabla (pick con pick, pack con pack)
+            if (dragSrcData.woodIdx === targetWoodIdx && dragSrcData.dataType === targetDataType) {
+                const woodEntry = woodList[dragSrcData.woodIdx];
+                const dataArray = (dragSrcData.dataType === 'pick') ? woodEntry.pickData : woodEntry.packData;
+                
+                const item = dataArray.splice(dragSrcData.rowIdx, 1)[0];
+                dataArray.splice(targetRowIdx, 0, item);
+                
+                renderMaderaDocument();
+            }
+        }
+
+
+        // ==================== INICIALIZACIÓN DE HEADERS ====================
+        const headerTpl = document.getElementById('headerTemplate').innerHTML;
+        document.getElementById('jdeHeaderContainer').innerHTML = headerTpl;
+        document.getElementById('webHeaderContainer').innerHTML = headerTpl;
+
+        // ==================== SELECTOR DE MODO ====================
+        document.querySelectorAll('input[name="modeSelector"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.getElementById('jdeApp').style.display = 'none';
+                document.getElementById('webApp').style.display = 'none';
+                document.getElementById('maderaApp').style.display = 'none';
+                
+                if (e.target.value === 'JDE') document.getElementById('jdeApp').style.display = 'block';
+                if (e.target.value === 'WEB') document.getElementById('webApp').style.display = 'block';
+                if (e.target.value === 'MADERA') document.getElementById('maderaApp').style.display = 'block';
+            });
+        });
+
+        // ==================== UTILIDADES ====================
+        function parseNumberES(val) {
+            if(!val) return 0;
+            val = val.toString().replace(/\s+/g, "");
+            if (val.includes(",")) {
+                val = val.replace(/\./g, ""); 
+                val = val.replace(",", ".");  
+            }
+            const parsed = parseFloat(val);
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function formatNumberES(val) {
+            return parseFloat(val).toLocaleString("es-ES", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+            });
+        }
+
+        function calculateArea(largo, ancho) {
+            return (largo / 1000) * (ancho / 1000);
+        }
+
+        // ==================== APP MADERA PAQUETES ====================
+        let woodList = []; 
+        const maderaCanvas = document.getElementById("maderaPrintCanvas");
+        const descInput = document.getElementById("descriptionInput");
+        const priceInput = document.getElementById("priceInput");
+        const pickInput = document.getElementById("pickingDimensionsTextarea");
+        const packInput = document.getElementById("packageDimensionsTextarea");
+        const onlyPkg = document.getElementById("onlyPackageChk");
+        const onlyPick = document.getElementById("onlyPickingChk");
+        const use38 = document.getElementById("use36PackageChk");
+        const useML = document.getElementById("useMLChk");
+
+        onlyPkg.addEventListener("change", () => { if(onlyPkg.checked) onlyPick.checked = false; });
+        onlyPick.addEventListener("change", () => { if(onlyPick.checked) onlyPkg.checked = false; });
+
+        function parsePickingRaw(text) {
+            const lines = text.split("\n").filter(l => l.trim());
+            return lines.map(line => {
+                const c = line.split("\t");
+                if (c.length < 3) return null;
+                return {
+                    alm: mapAlmacen(c[0].trim()),
+                    cant: formatNumberES(parseNumberES(c[2])),
+                    largo: Math.round(parseNumberES(c[c.length-1]))
+                };
+            }).filter(x => x);
+        }
+
+        function parsePackageRaw(text) {
+            const lines = text.split("\n").filter(l => l.trim());
+            return lines.map(line => {
+                const c = line.split("\t");
+                if (c.length < 10) return null;
+                return {
+                    alm: mapAlmacen(c[0].trim()),
+                    numPack: c[3].trim(),
+                    cant: formatNumberES(parseNumberES(c[9])),
+                    largo: Math.round(parseNumberES(c[6]))
+                };
+            }).filter(x => x);
+        }
+
+        document.getElementById("addBtn").addEventListener("click", () => {
+            if(!descInput.value) { alert("Falta la descripción"); return; }
+            const base = parseNumberES(priceInput.value);
+            const pickingPrice = base * 0.72;
+            const factor = use38.checked ? 0.62 : 0.64;
+            const packagePrice = base * factor;
+
+            const entry = {
+                desc: descInput.value.toUpperCase(),
+                pickingPrice: formatNumberES(pickingPrice),
+                packagePrice: formatNumberES(packagePrice),
+                pickData: parsePickingRaw(pickInput.value.trim()),
+                packData: parsePackageRaw(packInput.value.trim()),
+                isOnlyPack: onlyPkg.checked,
+                isOnlyPick: onlyPick.checked,
+                unit: useML.checked ? "m.l." : "m³"
+            };
+
+            woodList.push(entry);
+            renderMaderaDocument();
+            descInput.focus();
+        });
+
+        document.getElementById("clearAllBtn").addEventListener("click", () => {
+            if(confirm("¿Borrar todo el documento de madera?")) {
+                woodList = [];
+                renderMaderaDocument();
+            }
+        });
+
+        window.deleteMaderaRow = function(woodIndex, type, rowIndex) {
+            if (type === 'pick') {
+                woodList[woodIndex].pickData.splice(rowIndex, 1);
+            } else if (type === 'pack') {
+                woodList[woodIndex].packData.splice(rowIndex, 1);
+            }
+            renderMaderaDocument();
+        };
+
+        function renderMaderaDocument() {
+            if (woodList.length === 0) {
+                maderaCanvas.innerHTML = '<p class="no-print" style="text-align:center; color:#999; padding:2rem;">El documento está vacío.</p>';
+                return;
+            }
+
+            let html = headerTpl; 
+            html += `<div class="tables-wrapper">`;
+
+            woodList.forEach((wood, index) => {
+                html += `<div class="wood-entry">`;
+                html += `<button class="close-btn entry-delete-btn no-print" onclick="deleteWoodEntry(${index})" style="float:right;">×</button>`;
+
+                html += `
+                <div style="background:#f8fafc; border-left:4px solid #000; padding:1rem; margin-bottom:1rem;">
+                    <div style="font-size:1.1rem; font-weight:800; color:#000; margin-bottom:0.5rem;">${wood.desc}</div>
+                    <div style="display:flex; gap:2rem; font-size:0.95rem;">
+                        ${ !wood.isOnlyPack && !wood.isOnlyPick ? `<div>Picking: <strong>${wood.pickingPrice} €/${wood.unit}</strong></div>` : '' }
+                        ${ wood.isOnlyPick ? `<div>Picking: <strong>${wood.pickingPrice} €/${wood.unit}</strong></div>` : '' }
+                        ${ !wood.isOnlyPick ? `<div>Paquete: <strong>${wood.packagePrice} €/${wood.unit}</strong></div>` : '' }
+                    </div>
+                </div>
+                `;
+
+                if(!wood.isOnlyPack && wood.pickData.length > 0) html += generatePickingHTML(wood.pickData, wood.unit, index);
+                if(!wood.isOnlyPick && wood.packData.length > 0) html += generatePackageHTML(wood.packData, wood.unit, index);
+
+                html += `</div>`;
+            });
+            html += `</div>`;
+            maderaCanvas.innerHTML = html;
+        }
+
+        window.deleteWoodEntry = function(index) {
+            woodList.splice(index, 1);
+            renderMaderaDocument();
+        }
+
+        function mapAlmacen(code) {
+            if(code === "01") return "Central";
+            if(code === "04") return "Madrid";
+            if(code === "08") return "Galicia";
+            return code;
+        }
+
+        function generatePickingHTML(dataArray, unit, woodIndex) {
+            let h = `<h3>Picking</h3><table><thead><tr><th>Almacén</th><th>Medida (${unit})</th><th>Largo (mm)</th></tr></thead><tbody>`;
+            dataArray.forEach((row, rowIndex) => {
+                // AÑADIDO: Atributos draggable para Picking
+                h += `<tr draggable="true" data-wood-index="${woodIndex}" data-data-type="pick" data-row-index="${rowIndex}" title="Doble clic para eliminar fila, arrastrar para mover" ondblclick="deleteMaderaRow(${woodIndex}, 'pick', ${rowIndex})">
+                        <td>${row.alm}</td><td>${row.cant}</td><td>${row.largo}</td>
+                      </tr>`;
+            });
+            h += `</tbody></table>`;
+            return h;
+        }
+
+        function generatePackageHTML(dataArray, unit, woodIndex) {
+            // AÑADIDO: Renderizado plano (sin agrupar visualmente con lógica compleja) para permitir reordenar cualquier fila
+            // pero manteniendo el diseño visual de paquetes.
+            // Para respetar el "Drag and Drop", renderizamos las filas tal cual vienen en dataArray.
+            // El usuario es responsable de agruparlas al arrastrarlas si quiere.
+            
+            // Si queremos mantener la "visualización de paquetes" (bordes entre paquetes), detectamos cambios de paquete.
+            
+            let h = `<h3>Paquetes</h3>`;
+            if(dataArray.length > 0) {
+                 h += `<table><thead><tr><th>Almacén</th><th>Nº Paquete</th><th>Cantidad (${unit})</th><th>Largo (mm)</th></tr></thead><tbody>`;
+                 
+                 let lastPackNum = null;
+                 dataArray.forEach((row, rowIndex) => {
+                     // Lógica de borde separador de paquetes
+                     const isNewPack = lastPackNum !== null && row.numPack !== lastPackNum;
+                     const rowStyle = isNewPack ? 'border-top: 2px solid #ccc;' : '';
+                     
+                     // AÑADIDO: Atributos draggable para Paquetes
+                     h += `<tr style="${rowStyle}" draggable="true" data-wood-index="${woodIndex}" data-data-type="pack" data-row-index="${rowIndex}" title="Doble clic para eliminar fila, arrastrar para mover" ondblclick="deleteMaderaRow(${woodIndex}, 'pack', ${rowIndex})">
+                        <td>${row.alm}</td>
+                        <td><strong>${row.numPack}</strong></td>
+                        <td>${row.cant}</td>
+                        <td>${row.largo}</td>
+                      </tr>`;
+                      
+                      lastPackNum = row.numPack;
+                 });
+                 h += `</tbody></table>`;
+            }
+            return h;
+        }
+
+        // ==================== APP JDE ====================
+        const jdeData = [];
+        const jdeColumns = { 
+            med: true,
+            precio: false, 
+            p350: true, 
+            pPick33: false, 
+            pPack: true, 
+            pPack38: false, 
+            ud: true, 
+            stSan: true, 
+            stCen: true 
+        };
+        
+        document.getElementById('jdeBtnAddTable').addEventListener('click', () => {
+            const txt = document.getElementById('jdeInputData').value;
+            if(!txt.trim()) return;
+            const parsed = parseJDE(txt);
+            if(parsed.length) {
+                jdeData.push(parsed);
+                renderJDE();
+            }
+        });
+        document.getElementById('jdeBtnClearText').addEventListener('click', () => document.getElementById('jdeInputData').value = "");
+        document.querySelectorAll('input[name="discountConfig"]').forEach(r => r.addEventListener('change', renderJDE));
+        document.getElementById('jdeChkUnidad').addEventListener('change', renderJDE);
+        
+        const divInfo = document.getElementById('jdeColsInfo');
+        const divPrecios = document.getElementById('jdeColsPrecios');
+        const divStock = document.getElementById('jdeColsStock');
+
+        const colConfigs = {
+            med: { label: "Medidas", div: divInfo },
+            precio: { label: "PVP Ref.", div: divPrecios },
+            p350: { label: "Picking (Base)", div: divPrecios },
+            pPick33: { label: "Picking (33%)", div: divPrecios },
+            pPack: { label: "Paquete (Base)", div: divPrecios },
+            pPack38: { label: "Paquete (38%)", div: divPrecios },
+            ud: { label: "Uds/Paq", div: divPrecios },
+            stSan: { label: "St. Santiago", div: divStock },
+            stCen: { label: "St. Central", div: divStock }
+        };
+
+        Object.keys(jdeColumns).forEach(key => {
+            const cfg = colConfigs[key];
+            if(!cfg) return;
+            
+            const lbl = document.createElement('label');
+            lbl.style.marginRight="10px";
+            lbl.style.fontSize="0.8rem";
+            
+            const chk = document.createElement('input');
+            chk.type = "checkbox";
+            chk.checked = jdeColumns[key];
+            chk.onchange = (e) => {
+                jdeColumns[key] = e.target.checked;
+                renderJDE();
+            };
+            
+            lbl.appendChild(chk);
+            lbl.appendChild(document.createTextNode(" " + cfg.label));
+            cfg.div.appendChild(lbl);
+        });
+
+        window.deleteJDERow = function(tableIdx, rowIdx) {
+            jdeData[tableIdx].splice(rowIdx, 1);
+            renderJDE();
+        };
+
+        function parseJDE(txt) {
+            return txt.split("\n").map(line => {
+                const p = line.split("\t");
+                if(p.length < 15) return null;
+                return {
+                    desc: p[3].trim(), 
+                    med: p[4], 
+                    l: parseNumberES(p[5]), a: parseNumberES(p[6]), h: parseNumberES(p[7]),
+                    pvp: parseNumberES(p[8]), 
+                    stSan: parseNumberES(p[9]), stCen: parseNumberES(p[10]),
+                    uds: p[15] == "1" ? "" : p[15]
+                };
+            }).filter(x => x).sort((a,b) => a.h - b.h);
+        }
+
+        function renderJDE() {
+            const cont = document.getElementById('jdeTablesContainer');
+            cont.innerHTML = "";
+            const discType = document.querySelector('input[name="discountConfig"]:checked').value;
+            const isM2 = document.getElementById('jdeChkUnidad').checked;
+
+            jdeData.forEach((rows, tableIdx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "result-table-wrapper";
+                wrapper.innerHTML = `<button class="close-btn no-print" onclick="delJDE(${tableIdx})" style="position:absolute; right:0; top:-25px;">×</button>`;
+                
+                let th = `<thead><tr><th>Descripción</th>`;
+                if(jdeColumns.med) th+=`<th>Medidas</th>`;
+                if(jdeColumns.precio) th+=`<th>Precio PVP</th>`;
+                if(jdeColumns.p350) th+=`<th>Precio Picking</th>`;
+                if(jdeColumns.pPick33) th+=`<th>Picking 33%</th>`;
+                if(jdeColumns.pPack) th+=`<th>Precio Paquete</th>`;
+                if(jdeColumns.ud) th+=`<th>Uds/Paquete</th>`;
+                if(jdeColumns.pPack38) th+=`<th>Paquete 38%</th>`;
+                if(jdeColumns.stSan) th+=`<th>Stock Santiago</th>`;
+                if(jdeColumns.stCen) th+=`<th>Stock Central</th>`;
+                th+=`</tr></thead>`;
+
+                let tb = `<tbody>`;
+                rows.forEach((r, rowIdx) => {
+                    let base = r.pvp;
+                    if(!isM2 && r.l !== 1000) base = parseFloat(((r.l/1000)*(r.a/1000)*r.pvp).toFixed(2));
+                    let dPick=0.31, dPack=0.36, dMax=0.38;
+                    if(discType==="B0") { dPick=0.28; dPack=0.33; dMax=0.35; }
+                    if(discType==="M3") { dPick=0.33; dPack=0.37; dMax=0.38; }
+                    
+                    const descLower = r.desc.toLowerCase();
+                    const isCanto = descLower.startsWith("canto") || descLower.startsWith("cant");
+
+                    let stockSanDisplay = r.stSan;
+                    let stockCenDisplay = r.stCen;
+                    if (r.l !== 1000) {
+                        const area = calculateArea(r.l, r.a);
+                        if (area > 0) {
+                            stockSanDisplay = Math.floor(r.stSan / area);
+                            stockCenDisplay = Math.floor(r.stCen / area);
+                        }
+                    }
+
+                    tb += `<tr draggable="true" data-table-index="${tableIdx}" data-row-index="${rowIdx}" title="Doble clic para borrar fila" ondblclick="deleteJDERow(${tableIdx}, ${rowIdx})">
+                        <td>${r.desc}</td>`;
+                    if(jdeColumns.med) tb+=`<td>${r.med}</td>`;
+                    if(jdeColumns.precio) tb+=`<td>${formatNumberES(base)} €</td>`;
+                    if(jdeColumns.p350) tb+=`<td>${formatNumberES(base*(1-dPick))} €</td>`;
+                    if(jdeColumns.pPick33) tb+=`<td>${formatNumberES(base*(1-0.33))} €</td>`;
+                    
+                    if(jdeColumns.pPack) tb+=`<td>${isCanto ? '' : formatNumberES(base*(1-dPack)) + ' €'}</td>`;
+                    if(jdeColumns.ud) tb+=`<td>${r.uds}</td>`;
+                    if(jdeColumns.pPack38) tb+=`<td>${isCanto ? '' : formatNumberES(base*(1-dMax)) + ' €'}</td>`;
+                    
+                    if(jdeColumns.stSan) tb+=`<td>${stockSanDisplay || ''}</td>`;
+                    if(jdeColumns.stCen) tb+=`<td>${stockCenDisplay || ''}</td>`;
+                    tb+=`</tr>`;
+                });
+                tb+=`</tbody>`;
+                const table = document.createElement('table');
+                table.innerHTML = th + tb;
+                wrapper.appendChild(table);
+                cont.appendChild(wrapper);
+            });
+        }
+        window.delJDE = (i) => { jdeData.splice(i,1); renderJDE(); };
+
+        // ==================== APP WEB ====================
+        const webData = [];
+        const webColumns = { cod:true, med:true, pvp:true, pick:true, pack:true, outlet:true };
+        document.getElementById('webBtnAddTable').addEventListener('click', () => {
+            const txt = document.getElementById('webInputData').value;
+            if(!txt.trim()) return;
+            const rows = txt.split("\n").filter(l=>l.trim()).map(l => {
+                const f = l.split("\t");
+                const priceMatch = (f[8]||"0").match(/([\d.,]+)/);
+                const priceVal = priceMatch ? parseNumberES(priceMatch[1]) : 0;
+                return {
+                    cod: f[0], desc: f[1].replace(/\s+\d+\s+\d+\s+\d+(?:[.,]\d+)?\s*$/, ""),
+                    l: parseNumberES(f[2]), a: parseNumberES(f[3]), g: parseNumberES(f[4]),
+                    outlet: (f[5]||"").toLowerCase().includes("outlet"),
+                    pvp: priceVal
+                };
+            }).sort((a,b)=>a.g-b.g);
+            webData.push(rows);
+            renderWeb();
+        });
+        document.getElementById('webBtnClearText').addEventListener('click', ()=>document.getElementById('webInputData').value="");
+        document.querySelectorAll('input[name="discountConfigWeb"], #webChkPaquete38, #webChkUnidad').forEach(el => el.addEventListener('change', renderWeb));
+        
+        const webColsDiv = document.getElementById('webColumnsContainer');
+        const wLabels = { cod:"Código", med:"Medidas", pvp:"PVP", pick:"Picking", pack:"Paquete", outlet:"Outlet" };
+        Object.keys(webColumns).forEach(key => {
+            const lbl = document.createElement('label');
+            lbl.style.marginRight="10px";
+            lbl.innerHTML = `<input type="checkbox" checked onchange="toggleWebCol('${key}', this.checked)"> ${wLabels[key]}`;
+            webColsDiv.appendChild(lbl);
+        });
+        window.toggleWebCol = (k,v) => { webColumns[k]=v; renderWeb(); };
+
+        function renderWeb() {
+            const cont = document.getElementById('webTablesContainer');
+            cont.innerHTML = "";
+            const cliType = document.querySelector('input[name="discountConfigWeb"]:checked').value;
+            const use38 = document.getElementById('webChkPaquete38').checked;
+            const isM2 = document.getElementById('webChkUnidad').checked;
+
+            webData.forEach((rows, idx) => {
+                const wrapper = document.createElement('div');
+                wrapper.className = "result-table-wrapper";
+                wrapper.innerHTML = `<button class="close-btn no-print" onclick="delWeb(${idx})" style="position:absolute; right:0; top:-25px;">×</button>`;
+                let th = `<thead><tr>`;
+                if(webColumns.cod) th+=`<th>Código</th>`;
+                th+=`<th>Descripción</th>`;
+                if(webColumns.med) th+=`<th>Medidas</th>`;
+                if(webColumns.pvp) th+=`<th>PVP</th>`;
+                if(webColumns.pick) th+=`<th>Picking</th>`;
+                if(webColumns.pack) th+=`<th>Paquete</th>`;
+                if(webColumns.outlet) th+=`<th>Outlet</th>`;
+                th+=`</tr></thead><tbody>`;
+                let tb = ``;
+                rows.forEach(r => {
+                    let base = r.pvp;
+                    if(!isM2 && !r.desc.toLowerCase().includes("canto")) base = (r.l*r.a/1000000)*r.pvp;
+                    let dPick=0.31, dPack=0.36;
+                    if(cliType==="B") { dPick=0.28; dPack=0.33; }
+                    if(cliType==="M") { dPick=0.34; dPack=0.37; }
+                    if(use38) dPack=0.38;
+                    tb+=`<tr title="Doble clic para borrar" ondblclick="alert('Para borrar en Web, borra la tabla completa con la X')">`; // Opcional implementar borrado fila en web
+                    if(webColumns.cod) tb+=`<td>${r.cod}</td>`;
+                    tb+=`<td>${r.desc}</td>`;
+                    if(webColumns.med) tb+=`<td>${r.l}x${r.a}x${r.g}</td>`;
+                    if(webColumns.pvp) tb+=`<td>${formatNumberES(base)} €</td>`;
+                    if(webColumns.pick) tb+=`<td>${formatNumberES(base*(1-dPick))}</td>`;
+                    if(webColumns.pack) tb+=`<td>${r.desc.toLowerCase().includes("canto") ? '' : formatNumberES(base*(1-dPack))}</td>`;
+                    if(webColumns.outlet) tb+=`<td>${r.outlet?'Sí':'No'}</td>`;
+                    tb+=`</tr>`;
+                });
+                tb+=`</tbody>`;
+                const table = document.createElement('table');
+                table.innerHTML = th + tb;
+                wrapper.appendChild(table);
+                cont.appendChild(wrapper);
+            });
+        }
+        window.delWeb = (i) => { webData.splice(i,1); renderWeb(); };
+
+    </script>
+</body>
+</html>
